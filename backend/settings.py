@@ -12,12 +12,11 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
-from dotenv import load_dotenv
 import os
+from dotenv import load_dotenv
+import cloudinary
 
 load_dotenv()
-
-import cloudinary
 
 cloudinary.config(
     cloud_name=os.getenv("CLOUD_NAME"),
@@ -33,10 +32,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-3chudc8_bqi6+c+2)r=38vyaj+%-_c2cm^dhw5o0a!f&k(9#zp'
+SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-secret-key")
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*",".vercel.app",".now.sh","127.0.0.1"]
 
@@ -158,14 +159,30 @@ AUTH_USER_MODEL = 'accounts.User'
 # MEDIA_URL = '/media/'
 # MEDIA_ROOT = BASE_DIR / 'media'
 
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-MEDIA_URL = '/media/'
+
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv('CLOUD_NAME'),
     'API_KEY': os.getenv('API_KEY'),
     'API_SECRET': os.getenv('API_SECRET'),
 }
 
+MEDIA_URL = '/media/'
+
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/6.0/howto/static-files/
+
+STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
@@ -179,17 +196,9 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/6.0/howto/static-files/
-
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-
 #Default primary key field type
 # https://docs.djangoproject.com/en/6.0/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWS_CREDENTIALS = True
@@ -210,10 +219,6 @@ CORS_ALLOWED_ORIGINS = [
 # DEFAULT_FROM_EMAIL = 'cse139981brur@gmail.com'
 # SERVER_EMAIL = 'cse139981brur@gmail.com'
 
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.getenv('EMAIL_HOST')
@@ -225,3 +230,6 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'no-reply@brur-cse.com')
 
 SITE_NAME = "Department of Computer Science & Engineering, BRUR"
+
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
